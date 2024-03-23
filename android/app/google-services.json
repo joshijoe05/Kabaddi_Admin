@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "541433307577",
+    "project_id": "kabadi-de081",
+    "storage_bucket": "kabadi-de081.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:541433307577:android:ef87d4987734e46f801668",
+        "android_client_info": {
+          "package_name": "com.example.kabadi_admin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1aUd2R8VvBf8rygQVBO2ChjUnL3sNkS8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:541433307577:android:0fa915daec6ac3e2801668",
+        "android_client_info": {
+          "package_name": "com.example.pro_kabadi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1aUd2R8VvBf8rygQVBO2ChjUnL3sNkS8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:541433307577:android:c2dea5b59677bc71801668",
+        "android_client_info": {
+          "package_name": "com.grafixui.kabadi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1aUd2R8VvBf8rygQVBO2ChjUnL3sNkS8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
