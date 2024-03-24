@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:kabadi_admin/firebase_options.dart';
 import 'package:kabadi_admin/responsive.dart';
 import 'package:kabadi_admin/responsive/home.dart';
 import 'package:kabadi_admin/responsive/sidebarx.dart';
 import 'package:kabadi_admin/screens/admin_sidebar.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:kabadi_admin/screens/article_form.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MaterialApp(home: KabadiAdmin()));
+  runApp(const GetMaterialApp(home: KabadiAdmin()));
 }
 
 class KabadiAdmin extends StatelessWidget {

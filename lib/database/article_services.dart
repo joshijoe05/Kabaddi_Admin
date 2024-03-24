@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 
-class ArticleController {
+class ArticleController extends GetxController {
   bool isAdmin = true;
   Rx<bool> isLoading = false.obs;
+  Rx<String> selectedValue = "Kabaddi Matches".obs;
 
   // Article Model
   /*  Tha map of data you send from frontend should be of this format
@@ -24,14 +25,9 @@ class ArticleController {
         return;
       }
       isLoading.value = true;
-
-      final articles =
-          await FirebaseFirestore.instance.collection("Articles").get();
-      final len = articles.docs.length;
-      data["id"] = "Article $len";
       await FirebaseFirestore.instance
           .collection("Articles")
-          .doc('Article $len')
+          .doc(data["id"])
           .set(data);
     } catch (e) {
       Get.snackbar("Error", e.toString());
@@ -98,7 +94,7 @@ class ArticleController {
     }
   }
 
-  Future<void> deleteBlog(String id) async {
+  Future<void> deleteArticle(String id) async {
     try {
       if (!isAdmin) {
         Get.snackbar("Not Authorized", "You dont have access");

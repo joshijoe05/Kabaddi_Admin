@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
 
-class BlogController {
+class BlogController extends GetxController {
   Rx<bool> isLoading = false.obs;
   bool isAdmin = true; // will handle later
 
@@ -25,13 +25,9 @@ class BlogController {
         return;
       }
       isLoading.value = true;
-
-      final blogs = await FirebaseFirestore.instance.collection("Blogs").get();
-      final len = blogs.docs.length;
-      data["id"] = "Blog $len";
       await FirebaseFirestore.instance
           .collection("Blogs")
-          .doc('Blog $len')
+          .doc(data["id"])
           .set(data);
     } catch (e) {
       Get.snackbar("Error", e.toString());
