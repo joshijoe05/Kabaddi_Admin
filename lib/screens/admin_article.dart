@@ -186,7 +186,6 @@ class _ArticlePageState extends State<ArticlePage> {
                                   stream: articleStream,
                                   builder: (context, snapshot) {
                                     if (snapshot.hasData) {
-                                      print(snapshot.data.docs.length);
                                       return SingleChildScrollView(
                                         scrollDirection: Axis.horizontal,
                                         child: Row(

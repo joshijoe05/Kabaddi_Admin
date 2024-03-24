@@ -147,7 +147,7 @@ class _BlogFormScreenState extends State<BlogFormScreen> {
                         var url;
                         if (_pickedImage != null) {
                           url = await CommonServices().uploadToStorage(
-                              _pickedImage, "Article", widget.doc["id"]);
+                              _pickedImage, "Blogs", widget.doc["id"]);
                         }
                         Map<String, dynamic> data = {
                           "title": _titleController.text,
