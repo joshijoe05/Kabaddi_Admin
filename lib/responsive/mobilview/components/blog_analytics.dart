@@ -70,9 +70,9 @@ class _BlogAnalytics1State extends State<BlogAnalytics1> {
                             FlSpot(6, 20),
                           ],
                           isCurved: true,
-                          colors: [
+                          color: 
                             const Color.fromARGB(255, 51, 54, 202),
-                          ],
+                          
                           barWidth: 2,
                           isStrokeCapRound: true,
                           belowBarData: BarAreaData(show: false),
@@ -87,9 +87,8 @@ class _BlogAnalytics1State extends State<BlogAnalytics1> {
                             FlSpot(6, 16),
                           ],
                           isCurved: true,
-                          colors: [
-                            const Color.fromARGB(255, 187, 187, 187),
-                          ],
+                          color: const Color.fromARGB(255, 187, 187, 187),
+                          
                           barWidth: 2,
                           isStrokeCapRound: true,
                           belowBarData: BarAreaData(show: false),
