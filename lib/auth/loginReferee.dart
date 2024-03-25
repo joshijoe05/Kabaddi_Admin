@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:kabadi_admin/refreee/refree.dart';
+import 'package:get/get.dart';
+import 'package:kabadi_admin/database/common_services.dart';
 import 'package:kabadi_admin/screens/admin_sidebar.dart';
 
 class LoginReferee extends StatelessWidget {
@@ -47,25 +48,38 @@ class _LoginPageState extends State<LoginPage> {
     _formKey.currentState!.save();
 
     try {
-      final UserCredentials = await _firebase
-          .signInWithEmailAndPassword(email: _username, password: _password)
-          .then((value) => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const Refree()),
-              ))
-          .onError((error, stackTrace) =>
+      final userCredentials = await _firebase.signInWithEmailAndPassword(
+          email: _username, password: _password);
 
-              // ignore: use_build_context_synchronously
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Login Failed'),
-                ),
-              ));
+      var users = await FirebaseFirestore.instance
+          .collection("Users")
+          .where("uid", isEqualTo: userCredentials.user?.uid)
+          .get();
+      var userRole = users.docs.first.data()["role"];
+      if (userRole == "referee") {
+        CommonServices.userRole = userRole;
+        Get.offAll(() => AdminSideBar());
+      } else {
+        Get.snackbar("Not Authorized", "You do not have access");
+      }
 
-      //  _firebase.createUserWithEmailAndPassword(
-      //     email: _enteredEmail, password: _enteredPassword);
+      //     .then((value) => Navigator.push(
+      //           context,
+      //           MaterialPageRoute(builder: (context) => const Refree()),
+      //         ))
+      //     .onError((error, stackTrace) =>
 
-      print(UserCredentials);
+      //         // ignore: use_build_context_synchronously
+      //         ScaffoldMessenger.of(context).showSnackBar(
+      //           const SnackBar(
+      //             content: Text('Login Failed'),
+      //           ),
+      //         ));
+
+      // //  _firebase.createUserWithEmailAndPassword(
+      // //     email: _enteredEmail, password: _enteredPassword);
+
+      // print(UserCredentials);
     } catch (error) {
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).clearSnackBars();

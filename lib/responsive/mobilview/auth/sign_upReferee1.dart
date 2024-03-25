@@ -28,10 +28,6 @@ class _SignUpReferee1State extends State<SignUpReferee1> {
   void _submit() async {
     final isValid = _formKey.currentState!.validate();
     if (isValid) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const Refree()),
-      );
     } else {
       return;
     }
@@ -51,13 +47,19 @@ class _SignUpReferee1State extends State<SignUpReferee1> {
         'username': _enteredUsername,
         'email': _enteredEmail,
         'phone': _enteredPhone,
-        'password': _enteredPassword
       });
-
-      print(UserCredentials);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const Refree()),
+      );
     } on FirebaseAuthException catch (error) {
       if (error.code == 'email-already-in-use') {
-        //
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Account already exists with email'),
+          ),
+        );
+        return;
       }
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(

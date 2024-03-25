@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:kabadi_admin/database/common_services.dart';
 import 'package:kabadi_admin/screens/admin_sidebar.dart';
 
 class SignUpAdmin extends StatefulWidget {
@@ -28,10 +29,6 @@ class _SignUpAdminState extends State<SignUpAdmin> {
   void _submit() async {
     final isValid = _formKey.currentState!.validate();
     if (isValid) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => AdminSideBar()),
-      );
     } else {
       return;
     }
@@ -39,25 +36,42 @@ class _SignUpAdminState extends State<SignUpAdmin> {
     _formKey.currentState!.save();
 
     try {
-      final UserCredentials = await _firebase.createUserWithEmailAndPassword(
+      final userCredentials = await _firebase.createUserWithEmailAndPassword(
           email: _enteredEmail, password: _enteredPassword);
       //  _firebase.createUserWithEmailAndPassword(
       //     email: _enteredEmail, password: _enteredPassword);
       await FirebaseFirestore.instance
-          .collection('Admin')
-          .doc(UserCredentials.user?.uid)
+          .collection('Users')
+          .doc(userCredentials.user?.uid)
           .set({
         'role': 'admin',
         'username': _enteredUsername,
         'email': _enteredEmail,
         'phone': _enteredPhone,
-        'password': _enteredPassword
+        "uid": userCredentials.user?.uid,
       });
-
-      print(UserCredentials);
+      await FirebaseFirestore.instance
+          .collection('Admin')
+          .doc(userCredentials.user?.uid)
+          .set({
+        'role': 'admin',
+        'username': _enteredUsername,
+        'email': _enteredEmail,
+        'phone': _enteredPhone,
+        "uid": userCredentials.user?.uid,
+      });
+      CommonServices.userRole = "admin";
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => AdminSideBar()),
+      );
     } on FirebaseAuthException catch (error) {
       if (error.code == 'email-already-in-use') {
-        //
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Account exists with this mail"),
+          ),
+        );
       }
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(

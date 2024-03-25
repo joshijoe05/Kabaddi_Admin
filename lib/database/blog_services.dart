@@ -2,10 +2,11 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
+import 'package:kabadi_admin/database/common_services.dart';
 
 class BlogController extends GetxController {
   Rx<bool> isLoading = false.obs;
-  bool isAdmin = true; // will handle later
+  bool isAdmin = CommonServices.userRole == "admin"; // will handle later
 
   // Blog Model
   /*  Tha map of data you send from frontend should be of this format
@@ -87,7 +88,7 @@ class BlogController extends GetxController {
     }
   }
 
-  Future<Stream<QuerySnapshot>?> getRecentBlogs(int blogs) async {
+  Future<Stream<QuerySnapshot>?> getRecentBlogs() async {
     try {
       if (!isAdmin) {
         Get.snackbar("Not Authorized", "You dont have access");

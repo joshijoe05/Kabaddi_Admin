@@ -1,32 +1,29 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kabadi_admin/components/custom_textform.dart';
-import 'package:kabadi_admin/database/blog_services.dart';
 import 'package:kabadi_admin/database/common_services.dart';
+import 'package:kabadi_admin/database/team_services.dart';
 
-class BlogFormScreen extends StatefulWidget {
+class TeamFormScreen extends StatefulWidget {
   final dynamic doc;
-  const BlogFormScreen({super.key, this.doc});
+  const TeamFormScreen({super.key, this.doc});
 
   @override
-  State<BlogFormScreen> createState() => _BlogFormScreenState();
+  State<TeamFormScreen> createState() => _TeamFormScreenState();
 }
 
-class _BlogFormScreenState extends State<BlogFormScreen> {
-  final BlogController _blogController = Get.put(BlogController());
+class _TeamFormScreenState extends State<TeamFormScreen> {
+  final TeamController _teamController = Get.put(TeamController());
   var _pickedImage;
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _descController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     if (widget.doc != null) {
-      _titleController.text = widget.doc["title"];
-      _descController.text = widget.doc["description"];
+      _nameController.text = widget.doc["name"];
     }
   }
 
@@ -34,7 +31,7 @@ class _BlogFormScreenState extends State<BlogFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Blogs"),
+        title: const Text("Teams"),
         centerTitle: true,
       ),
       body: Center(
@@ -63,8 +60,7 @@ class _BlogFormScreenState extends State<BlogFormScreen> {
                             ? const NetworkImage(
                                     'https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png')
                                 as ImageProvider
-                            : NetworkImage(widget.doc["imageUrl"])
-                                as ImageProvider
+                            : NetworkImage(widget.doc["logo"]) as ImageProvider
                         : MemoryImage(_pickedImage),
                   ),
                   Positioned(
@@ -91,24 +87,10 @@ class _BlogFormScreenState extends State<BlogFormScreen> {
                     SizedBox(
                       width: 500,
                       child: CustomTextFormField(
-                        controller: _titleController,
-                        heading: "Title",
-                        hintText: "Enter title",
+                        controller: _nameController,
+                        heading: "Team Name",
+                        hintText: "Enter team name",
                         keyboardType: TextInputType.name,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    SizedBox(
-                      width: 500,
-                      child: CustomTextFormField(
-                        controller: _descController,
-                        heading: "Description",
-                        hintText: "Enter Description",
-                        keyboardType: TextInputType.name,
-                        maxLength: 500,
-                        maxLines: 10,
                       ),
                     ),
                   ],
@@ -122,47 +104,22 @@ class _BlogFormScreenState extends State<BlogFormScreen> {
                   onTap: () async {
                     // Creating new page
                     if (_formKey.currentState!.validate()) {
-                      if (widget.doc == null) {
-                        if (_pickedImage == null) {
-                          Get.snackbar("Warning", "Please pick an image");
-                          return;
-                        }
-                        _blogController.isLoading.value = true;
-                        final blogs = await FirebaseFirestore.instance
-                            .collection("Blogs")
-                            .get();
-                        final len = blogs.docs.length;
-                        String url = await CommonServices().uploadToStorage(
-                            _pickedImage, "Blogs", "Blog $len");
-                        Map<String, dynamic> data = {
-                          "title": _titleController.text,
-                          "description": _descController.text,
-                          "imageUrl": url,
-                          "id": "Blog $len",
-                        };
-                        await _blogController.postBlog(data);
+                      var url;
+                      if (_pickedImage != null) {
+                        _teamController.isLoading.value = true;
+                        url = await CommonServices().uploadToStorage(
+                            _pickedImage, "Teams", widget.doc["id"]);
                       }
-                      // Edit/ Update
-                      else {
-                        var url;
-                        if (_pickedImage != null) {
-                          _blogController.isLoading.value = true;
-                          url = await CommonServices().uploadToStorage(
-                              _pickedImage, "Blogs", widget.doc["id"]);
-                        }
-                        Map<String, dynamic> data = {
-                          "title": _titleController.text,
-                          "description": _descController.text,
-                          "imageUrl": url ?? widget.doc["imageUrl"],
-                          "id": widget.doc["id"]
-                        };
+                      Map<String, dynamic> data = {
+                        "title": _nameController.text,
+                        "logo": url ?? widget.doc["logo"],
+                        "id": widget.doc["id"]
+                      };
 
-                        await _blogController.updateBlog(
-                            widget.doc["id"], data);
-                      }
-
-                      Navigator.pop(context);
+                      await _teamController.updateTeam(widget.doc["id"], data);
                     }
+
+                    Navigator.pop(context);
                   },
                   child: Container(
                     width: 350,
@@ -171,16 +128,16 @@ class _BlogFormScreenState extends State<BlogFormScreen> {
                         borderRadius: BorderRadius.circular(5)),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 10),
-                    child: _blogController.isLoading.value
+                    child: _teamController.isLoading.value
                         ? const Center(
                             child: CircularProgressIndicator(
                               color: Colors.white,
                             ),
                           )
-                        : Center(
+                        : const Center(
                             child: Text(
-                              widget.doc == null ? "Post Blog" : "Update Blog",
-                              style: const TextStyle(
+                              "Update Team",
+                              style: TextStyle(
                                 color: Colors.white,
                               ),
                             ),

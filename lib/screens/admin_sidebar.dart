@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:kabadi_admin/database/common_services.dart';
 import 'package:kabadi_admin/screens/admin_article.dart';
 import 'package:kabadi_admin/screens/admin_blog.dart';
 import 'package:kabadi_admin/screens/admin_dashboard.dart';
@@ -80,18 +81,25 @@ class _AdminSideBarState extends State<AdminSideBar> {
                       ),
                     ),
                   ),
-                  _buildMenuItem('Admin', Icons.bar_chart_rounded,
-                      const AdminDashBoard(), context),
-                  _buildMenuItem(
-                      'Blog', Icons.article, const AdminBlogs(), context),
-                  _buildMenuItem('Article', Icons.description,
-                      const ArticlePage(), context),
-                  _buildMenuItem(
-                      'Team', Icons.people, const AdminTeamsPage(), context),
-                  _buildMenuItem(
-                      'Player', Icons.person, const AdminPlayers(), context),
-                  _buildMenuItem('Matches', Icons.sports_kabaddi,
-                      const Matches(), context),
+                  if (CommonServices.userRole == "admin")
+                    _buildMenuItem('Admin', Icons.bar_chart_rounded,
+                        const AdminDashBoard(), context),
+                  if (CommonServices.userRole == "admin")
+                    _buildMenuItem(
+                        'Blog', Icons.article, const AdminBlogs(), context),
+                  if (CommonServices.userRole == "admin")
+                    _buildMenuItem('Article', Icons.description,
+                        const ArticlePage(), context),
+                  if (CommonServices.userRole == "admin")
+                    _buildMenuItem(
+                        'Team', Icons.people, const AdminTeamsPage(), context),
+                  if (CommonServices.userRole == "admin")
+                    _buildMenuItem(
+                        'Player', Icons.person, const AdminPlayers(), context),
+                  if (CommonServices.userRole == "admin" ||
+                      CommonServices.userRole == "referee")
+                    _buildMenuItem('Matches', Icons.sports_kabaddi,
+                        const Matches(), context),
                 ],
               ),
             ),

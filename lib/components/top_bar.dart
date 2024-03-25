@@ -1,5 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
+import 'package:kabadi_admin/responsive/home.dart';
 
 class searchBar extends StatefulWidget {
   const searchBar({super.key});
@@ -67,12 +70,19 @@ class _searchBarState extends State<searchBar> {
                     onPressed: () {},
                     icon: const Icon(Icons.notifications_rounded)),
                 Padding(
-                  padding: const EdgeInsets.only(left: 6),
-                  child: CircleAvatar(
-                    radius: MediaQuery.of(context).size.width / 90,
-                    child: ClipOval(child: Image.asset('assets/images/b.png')),
-                  ),
-                ),
+                    padding: const EdgeInsets.only(left: 6),
+                    child: GestureDetector(
+                      onTap: () async {
+                        await FirebaseAuth.instance.signOut();
+                        Get.offAll(() => const Home());
+                      },
+                      child: const Text(
+                        "LOGOUT",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    )),
               ],
             ),
           )

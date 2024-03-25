@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kabadi_admin/database/common_services.dart';
 import 'package:kabadi_admin/firebase_options.dart';
 import 'package:kabadi_admin/responsive.dart';
 import 'package:kabadi_admin/responsive/home.dart';
@@ -12,7 +13,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
-  );
+  ).then((value) {
+    Get.put(CommonServices());
+  });
   runApp(const GetMaterialApp(home: KabadiAdmin()));
 }
 

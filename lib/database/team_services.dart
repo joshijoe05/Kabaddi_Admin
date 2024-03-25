@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:kabadi_admin/database/common_services.dart';
 
-class TeamController {
-  bool isAdmin = true;
+class TeamController extends GetxController {
+  bool isAdmin = CommonServices.userRole == "admin";
 
   Rx<bool> isLoading = false.obs;
 
@@ -15,27 +16,27 @@ class TeamController {
     }
    */
 
-  Future<void> addteam(Map<String, dynamic> data) async {
-    try {
-      if (!isAdmin) {
-        Get.snackbar("Not Authorized", "You dont have access");
-        return;
-      }
-      isLoading.value = true;
+  // Future<void> addteam(Map<String, dynamic> data) async {
+  //   try {
+  //     if (!isAdmin) {
+  //       Get.snackbar("Not Authorized", "You dont have access");
+  //       return;
+  //     }
+  //     isLoading.value = true;
 
-      final teams = await FirebaseFirestore.instance.collection("Teams").get();
-      final len = teams.docs.length;
-      data["id"] = "Team $len";
-      await FirebaseFirestore.instance
-          .collection("Teams")
-          .doc('Team $len')
-          .set(data);
-    } catch (e) {
-      Get.snackbar("Error", e.toString());
-    } finally {
-      isLoading.value = false;
-    }
-  }
+  //     final teams = await FirebaseFirestore.instance.collection("Teams").get();
+  //     final len = teams.docs.length;
+  //     data["id"] = "Team $len";
+  //     await FirebaseFirestore.instance
+  //         .collection("Teams")
+  //         .doc('Team $len')
+  //         .set(data);
+  //   } catch (e) {
+  //     Get.snackbar("Error", e.toString());
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
 
   Future<Stream<QuerySnapshot>?> getTeams() async {
     try {
@@ -70,21 +71,21 @@ class TeamController {
     } finally {
       isLoading.value = false;
     }
+  }
 
-    Future<void> deleteTeam(String id) async {
-      try {
-        if (!isAdmin) {
-          Get.snackbar("Not Authorized", "You dont have access");
-          return;
-        }
-        isLoading.value = true;
-
-        await FirebaseFirestore.instance.collection("Teams").doc(id).delete();
-      } catch (e) {
-        Get.snackbar("Error", e.toString());
-      } finally {
-        isLoading.value = false;
+  Future<void> deleteTeam(String id) async {
+    try {
+      if (!isAdmin) {
+        Get.snackbar("Not Authorized", "You dont have access");
+        return;
       }
+      isLoading.value = true;
+
+      await FirebaseFirestore.instance.collection("Teams").doc(id).delete();
+    } catch (e) {
+      Get.snackbar("Error", e.toString());
+    } finally {
+      isLoading.value = false;
     }
   }
 }

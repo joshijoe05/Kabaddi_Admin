@@ -33,6 +33,7 @@ class _ArticleFormScreenState extends State<ArticleFormScreen> {
     if (widget.doc != null) {
       _titleController.text = widget.doc["title"];
       _descController.text = widget.doc["description"];
+      _articleController.selectedValue.value = widget.doc["topic"];
     }
   }
 
@@ -175,6 +176,7 @@ class _ArticleFormScreenState extends State<ArticleFormScreen> {
                       else {
                         var url;
                         if (_pickedImage != null) {
+                          _articleController.isLoading.value = true;
                           url = await CommonServices().uploadToStorage(
                               _pickedImage, "Article", widget.doc["id"]);
                         }

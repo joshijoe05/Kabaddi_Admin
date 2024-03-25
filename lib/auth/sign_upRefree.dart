@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:kabadi_admin/database/common_services.dart';
 import 'package:kabadi_admin/refreee/refree.dart';
+import 'package:kabadi_admin/screens/admin_sidebar.dart';
 
 class SignUpReferee extends StatefulWidget {
   const SignUpReferee({super.key});
@@ -28,10 +30,6 @@ class _SignUpRefereeState extends State<SignUpReferee> {
   void _submit() async {
     final isValid = _formKey.currentState!.validate();
     if (isValid) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const Refree()),
-      );
     } else {
       return;
     }
@@ -44,17 +42,20 @@ class _SignUpRefereeState extends State<SignUpReferee> {
       //  _firebase.createUserWithEmailAndPassword(
       //     email: _enteredEmail, password: _enteredPassword);
       await FirebaseFirestore.instance
-          .collection('referee')
+          .collection('Users')
           .doc(UserCredentials.user?.uid)
           .set({
         'role': 'refree',
         'username': _enteredUsername,
         'email': _enteredEmail,
         'phone': _enteredPhone,
-        'password': _enteredPassword
       });
+      CommonServices.userRole == "referee";
 
-      print(UserCredentials);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => AdminSideBar()),
+      );
     } on FirebaseAuthException catch (error) {
       if (error.code == 'email-already-in-use') {
         //

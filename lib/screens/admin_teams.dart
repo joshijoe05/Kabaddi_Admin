@@ -1,5 +1,8 @@
 import "package:flutter/material.dart";
+import "package:get/get.dart";
 import "package:kabadi_admin/components/top_bar.dart";
+import "package:kabadi_admin/database/team_services.dart";
+import "package:kabadi_admin/screens/team_form.dart";
 
 void main() {
   runApp(const MaterialApp(home: AdminTeamsPage()));
@@ -29,54 +32,110 @@ class _AdminTeamsPageState extends State<AdminTeamsPage> {
     // Add more teams here as needed
   ];
 
+  Stream? teamStream;
+  final TeamController _teamController = Get.put(TeamController());
+
+  getTeams() async {
+    teamStream = await _teamController.getTeams();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getTeams();
+  }
+
   int? selectedIndex;
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Color(0xFFf7f2f0),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            searchBar(),
-            SizedBox(
-              height: 10,
-            ),
-            const Text(
-              "Teams",
-              style: TextStyle(
-                fontSize: 20,
+    return Obx(() {
+      return _teamController.isLoading.value
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : Container(
+              color: Color(0xFFf7f2f0),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // searchBar(),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    const Text(
+                      "Teams",
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                    StreamBuilder(
+                        stream: teamStream,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            if (snapshot.data.docs.length > 0) {
+                              return Expanded(
+                                child: ListView.builder(
+                                  itemCount: snapshot.data.docs.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    // final team = teams[index];
+                                    final doc = snapshot.data.docs[index];
+                                    return TeamButton(
+                                      name: doc['name'],
+                                      image: doc['logo'],
+                                      isSelected: selectedIndex ==
+                                          index, // Set isSelected based on selectedIndex
+                                      onTap: () {
+                                        setState(() {
+                                          // Update selectedIndex when a team is tapped
+                                          selectedIndex = index;
+                                        });
+                                        /*Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => TeamDetails()),
+                              );*/
+                                      },
+                                      onEdit: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  TeamFormScreen(
+                                                doc: snapshot.data.docs[index],
+                                              ),
+                                            ));
+                                      },
+                                      onDelete: () {
+                                        _teamController.deleteTeam(doc["id"]);
+                                      },
+                                    );
+                                  },
+                                ),
+                              );
+                            } else {
+                              return Center(
+                                child: Text("No teams yet"),
+                              );
+                            }
+                          } else if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          } else {
+                            return Center(
+                              child: Text("Internal error occured"),
+                            );
+                          }
+                        }),
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: teams.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final team = teams[index];
-                  return TeamButton(
-                    name: team['name'],
-                    image: team['image'],
-                    isSelected: selectedIndex ==
-                        index, // Set isSelected based on selectedIndex
-                    onTap: () {
-                      setState(() {
-                        // Update selectedIndex when a team is tapped
-                        selectedIndex = index;
-                      });
-                      /*Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => TeamDetails()),
-                      );*/
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+            );
+    });
   }
 }
 
@@ -85,6 +144,8 @@ class TeamButton extends StatelessWidget {
   final String image;
   final bool isSelected;
   final VoidCallback onTap;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   const TeamButton({
     super.key,
@@ -92,6 +153,8 @@ class TeamButton extends StatelessWidget {
     required this.image,
     required this.isSelected,
     required this.onTap,
+    required this.onEdit,
+    required this.onDelete,
   });
 
   @override
@@ -131,7 +194,7 @@ class TeamButton extends StatelessWidget {
                   children: [
                     Padding(
                       padding: EdgeInsets.only(left: w * 0.012),
-                      child: Image.asset(
+                      child: Image.network(
                         image,
                         height: w * 0.1,
                         width: w * 0.1,
@@ -158,7 +221,7 @@ class TeamButton extends StatelessWidget {
           height: w * 0.03,
           width: w * 0.1,
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: onEdit,
             style: ElevatedButton.styleFrom(
               backgroundColor:
                   isSelected ? const Color(0xFFfc5607) : Colors.white,
@@ -195,7 +258,7 @@ class TeamButton extends StatelessWidget {
             height: w * 0.03,
             width: w * 0.1,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: onDelete,
               style: ElevatedButton.styleFrom(
                 backgroundColor:
                     isSelected ? const Color(0xFFfc5607) : Colors.white,
