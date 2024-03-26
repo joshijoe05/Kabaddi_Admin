@@ -111,7 +111,7 @@ class _TeamFormScreenState extends State<TeamFormScreen> {
                             _pickedImage, "Teams", widget.doc["id"]);
                       }
                       Map<String, dynamic> data = {
-                        "title": _nameController.text,
+                        "name": _nameController.text,
                         "logo": url ?? widget.doc["logo"],
                         "id": widget.doc["id"]
                       };

@@ -274,8 +274,8 @@ class _PlayerFormScreenState extends State<PlayerFormScreen> {
                           : Center(
                               child: Text(
                                 widget.doc == null
-                                    ? "Post Blog"
-                                    : "Update Blog",
+                                    ? "Post Player"
+                                    : "Update Player",
                                 style: const TextStyle(
                                   color: Colors.white,
                                 ),

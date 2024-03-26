@@ -83,12 +83,13 @@ class _AdminPlayersState extends State<AdminPlayers> {
                         if (snapshot.data.docs.length > 0) {
                           return Expanded(
                             child: GridView.builder(
-                              // itemCount: snapshot.data.docs.length,
                               itemCount: snapshot.data.docs.length,
+                              // itemCount: 10,
                               gridDelegate:
                                   SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 3,
-                                mainAxisExtent: 520,
+                                mainAxisExtent:
+                                    MediaQuery.sizeOf(context).height / 1.5,
                               ),
                               itemBuilder: (context, index) {
                                 final player = snapshot.data.docs[index];
