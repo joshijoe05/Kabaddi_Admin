@@ -14,7 +14,35 @@ class MatchesController extends GetxController {
   void onInit() {
     super.onInit();
     allMatches.bindStream(MatchesServices().getMatches());
-    ever(allMatches, (callback) => {print(callback.length)});
+    ever(
+        allMatches,
+        (callback) => {
+              filterApprovedMatches(),
+              filterWatingForApprovalMatches(),
+            });
+  }
+
+  RxList<Match> approvedMatches = RxList<Match>([]);
+  RxList<Match> watingForApprovalMatches = RxList<Match>([]);
+
+  void filterApprovedMatches() {
+    for (var match in allMatches) {
+      if (match.isApproved) {
+        if (!approvedMatches.contains(match)) {
+          approvedMatches.add(match);
+        }
+      }
+    }
+  }
+
+  void filterWatingForApprovalMatches() {
+    for (var match in allMatches) {
+      if (!match.isApproved) {
+        if (!watingForApprovalMatches.contains(match)) {
+          watingForApprovalMatches.add(match);
+        }
+      }
+    }
   }
 
   Future<void> addMatch(Match match) async {
@@ -38,6 +66,18 @@ class MatchesController extends GetxController {
 
   detachRealTimeMatch() {
     realTimeMatchUpdates.close();
+  }
+
+  Future<void> approveMatch(String id) async {
+    try {
+      isLoading.value = true;
+      await MatchesServices().approveMatch(id);
+      isLoading.value = false;
+    } catch (e) {
+      print(e);
+      Get.snackbar(
+          "Error Occured While Approving the mathch", "Please try again later");
+    }
   }
 }
 
@@ -111,4 +151,14 @@ class MatchesServices {
         .snapshots()
         .map((doc) => Match.fromFirestore(doc.data() as Map<String, dynamic>));
   }
+
+  Future<void> approveMatch(String id) async {
+    try {
+      await _matchesCollectionReference.doc(id).update({'isApproved': true});
+    } catch (e) {
+      print(e);
+    }
+  }
 }
+
+
