@@ -1,40 +1,35 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:kabadi_admin/components/top_bar.dart';
+import 'package:kabadi_admin/database/common_services.dart';
+import 'package:kabadi_admin/database/matched_services.dart';
+import 'package:kabadi_admin/screens/custom_table.dart';
+import 'package:kabadi_admin/screens/table.dart';
 
 void main() {
   runApp(MaterialApp(home: Upcoming()));
 }
 
-class Match {
-  String team1Name;
-  String team1Logo;
-  String team2Name;
-  String team2Logo;
-  String matchNumber;
-  String matchTime;
-  String matchDate;
+// ignore: must_be_immutable
+class Upcoming extends StatefulWidget {
+  Upcoming({Key? key});
 
-  Match({
-    required this.team1Name,
-    required this.team1Logo,
-    required this.team2Name,
-    required this.team2Logo,
-    required this.matchNumber,
-    required this.matchTime,
-    required this.matchDate,
-  });
+  @override
+  State<Upcoming> createState() => _UpcomingState();
 }
 
-// ignore: must_be_immutable
-class Upcoming extends StatelessWidget {
+class _UpcomingState extends State<Upcoming> {
   // ignore: use_key_in_widget_constructors
-  Upcoming({Key? key});
+  MatchesController matchesController = Get.put(MatchesController());
+
   @override
   Widget build(BuildContext context) {
     var h = MediaQuery.of(context).size.height;
     var w = MediaQuery.of(context).size.width;
-    List<Match> matches = [
+    List<KabbadiMatch> matches = [
       // Match(
       //   team1Name: 'Danbang Delhi K.C',
       //   team1Logo: 'images/danbang.png',
@@ -44,7 +39,7 @@ class Upcoming extends StatelessWidget {
       //   matchTime: '8:30',
       //   matchDate: 'Octomber 18 2024',
       // ),
-      Match(
+      KabbadiMatch(
         team1Name: 'Tamil Thalaivas',
         team1Logo: 'images/tamilThalaivas.png',
         team2Name: 'Gujarat Giants',
@@ -53,7 +48,7 @@ class Upcoming extends StatelessWidget {
         matchTime: '9:00',
         matchDate: 'December 24 2024',
       ),
-      Match(
+      KabbadiMatch(
         team1Name: 'Bangaluru Bulls',
         team1Logo: 'images/bengaluru.png',
         team2Name: 'Bengal Warriors',
@@ -65,7 +60,7 @@ class Upcoming extends StatelessWidget {
     ];
 
     // Group matches by date
-    Map<String, List<Match>> groupedMatches = {};
+    Map<String, List<KabbadiMatch>> groupedMatches = {};
     for (var match in matches) {
       if (groupedMatches.containsKey(match.matchDate)) {
         groupedMatches[match.matchDate]!.add(match);
@@ -73,6 +68,9 @@ class Upcoming extends StatelessWidget {
         groupedMatches[match.matchDate] = [match];
       }
     }
+
+    late String dateOfMatch;
+    late String timeOfMatch;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,12 +101,97 @@ class Upcoming extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.only(
                         left: MediaQuery.of(context).size.width / 80),
-                    child: Text(
-                      'Tournament',
-                      style: TextStyle(
-                          fontSize: w / 80,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              'Tournament For Approved',
+                              style: GoogleFonts.poppins(
+                                fontSize: w / 80,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: h * 0.02,
+                        ),
+                        Obx(
+                          () => Container(
+                            height: h * 0.3,
+                            padding: EdgeInsets.symmetric(vertical: h * 0.007),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFfc5607),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: ListView.builder(
+                                itemCount:
+                                    matchesController.approvedMatches.length,
+                                itemBuilder: (context, index) {
+                                  return Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: w * 0.01,
+                                        vertical: h * 0.01),
+                                    child: _approvedTournaments(
+                                        context,
+                                        index.toString(),
+                                        matchesController
+                                            .approvedMatches[index]),
+                                  );
+                                }),
+                          ),
+                        ),
+                        CommonServices.userRole == "admin"
+                            ? Row(
+                                children: [
+                                  Text(
+                                    'Tournament For Approved',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: w / 80,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Row(
+                                children: [
+                                  Text(
+                                    'Tournaments Waiting For Approval',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: w / 80,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                        SizedBox(
+                          height: h * 0.02,
+                        ),
+                        Container(
+                          height: h * 0.3,
+                          padding: EdgeInsets.symmetric(vertical: h * 0.007),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFfc5607),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: ListView.builder(
+                              itemCount: 2,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: w * 0.01, vertical: h * 0.01),
+                                  child: waitingForApprovalRefreeWidget(
+                                      context,
+                                      matches[index],
+                                      CommonServices.userRole == "admin"),
+                                );
+                              }),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -135,19 +218,59 @@ class Upcoming extends StatelessWidget {
                         height: h / 80,
                       ),
                       Container(
-                        color: const Color.fromARGB(255, 231, 226, 224),
+                        decoration: BoxDecoration(
+                          color: Color.fromARGB(255, 231, 226, 224),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                         margin: EdgeInsets.all(h / 90),
                         child: Padding(
                           padding: EdgeInsets.all(h / 100),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'October 19,2024',
-                                style: TextStyle(
-                                    fontSize: w * 0.012,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold),
+                              GestureDetector(
+                                onTap: () async {
+                                  await showDatePicker(
+                                          context: context,
+                                          firstDate: DateTime.now(),
+                                          lastDate: DateTime(2101),
+                                          initialDate: DateTime.now())
+                                      .then((dateTime) async {
+                                    print(dateTime);
+                                    setState(() {
+                                      dateOfMatch =
+                                          "${dateTime?.year}-${dateTime?.month.toString().padLeft(2, '0')}-${dateTime?.day.toString().padLeft(2, '0')}";
+                                    });
+                                    print(dateOfMatch);
+                                    await showTimePicker(
+                                            context: context,
+                                            initialTime: TimeOfDay.now())
+                                        .then((value) {
+                                      setState(() {
+                                        timeOfMatch =
+                                            "${value?.hour}:${value?.minute}";
+                                      });
+                                      print(timeOfMatch);
+                                    });
+                                  });
+                                },
+                                child: Container(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.04,
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.2,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Text(
+                                    'Select Date And Time',
+                                    style: TextStyle(
+                                        fontSize: w * 0.012,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
                               ),
                               const SizedBox(
                                 height: 20,
@@ -268,8 +391,99 @@ class Upcoming extends StatelessWidget {
     );
   }
 
+  Widget _approvedTournaments(
+      BuildContext context, String index, KabbadiMatch match) {
+    double w = MediaQuery.of(context).size.width;
+    double h = MediaQuery.of(context).size.height;
+    return Container(
+      height: h * 0.1,
+      width: w * 0.35,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(left: w * 0.01),
+            child: SizedBox(
+              width: w * 0.06,
+              child: Expanded(
+                child: Text(
+                  match.team1Name,
+                  overflow: TextOverflow.clip,
+                  style: GoogleFonts.poppins(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Image.asset(
+            match.team1Logo,
+            height: w * 0.04,
+            width: w * 0.04,
+          ),
+          Center(
+            child: Text(
+              "Match ${match.matchNumber}\n ${match.matchTime}\n  IST",
+              style: GoogleFonts.poppins(
+                color: Colors.black,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Image.asset(
+            match.team2Logo,
+            height: w * 0.04,
+            width: w * 0.04,
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: w * 0.01),
+            child: SizedBox(
+              width: w * 0.06,
+              child: Expanded(
+                child: Text(
+                  match.team2Name,
+                  overflow: TextOverflow.clip,
+                  style: GoogleFonts.poppins(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: w * 0.01),
+            child: Container(
+              height: h * 0.04,
+              width: w * 0.07,
+              decoration: BoxDecoration(
+                color: const Color(0xFFfc5607),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: Text(
+                  "View Match",
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   Widget _buildMatchGroup(
-      String matchDate, List<Match> matches, BuildContext context) {
+      String matchDate, List<KabbadiMatch> matches, BuildContext context) {
     double w = MediaQuery.of(context).size.width;
     return Container(
       color: const Color(0xFFfc5607),
@@ -290,59 +504,208 @@ class Upcoming extends StatelessWidget {
     );
   }
 
-  Widget _buildMatchContainer(Match match, BuildContext context) {
+  Widget _buildMatchContainer(KabbadiMatch match, BuildContext context) {
     double w = MediaQuery.of(context).size.width;
     return Padding(
       padding: EdgeInsets.all(w * 0.01),
-      child: Container(
-        color: Colors.white,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: w * 0.01),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Text(
-                  match.team1Name,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: w * 0.012),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => Matchpoints(match: match)));
+        },
+        child: Container(
+          color: Colors.white,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: w * 0.01),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Text(
+                    match.team1Name,
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: w * 0.012),
+                  ),
                 ),
-              ),
-              Image.asset(
-                match.team1Logo,
-                height: w * 0.04,
-                width: w * 0.04,
-              ),
-              Center(
-                child: Text(
-                  "Match ${match.matchNumber}\n ${match.matchTime}\n  IST",
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: w * 0.012),
+                Image.asset(
+                  match.team1Logo,
+                  height: w * 0.04,
+                  width: w * 0.04,
                 ),
-              ),
-              Image.asset(
-                match.team2Logo,
-                height: w * 0.04,
-                width: w * 0.04,
-              ),
-              Expanded(
-                child: Text(
-                  match.team2Name,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: w * 0.012),
+                Center(
+                  child: Text(
+                    "Match ${match.matchNumber}\n ${match.matchTime}\n  IST",
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: w * 0.012),
+                  ),
                 ),
-              ),
-            ],
+                Image.asset(
+                  match.team2Logo,
+                  height: w * 0.04,
+                  width: w * 0.04,
+                ),
+                Expanded(
+                  child: Text(
+                    match.team2Name,
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: w * 0.012),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+}
+
+Widget waitingForApprovalRefreeWidget(
+    BuildContext context, KabbadiMatch match, bool isAdmin) {
+  double w = MediaQuery.of(context).size.width;
+  double h = MediaQuery.of(context).size.height;
+
+  return Container(
+    height: h * 0.1,
+    width: w * 0.35,
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(left: w * 0.01),
+          child: SizedBox(
+            width: w * 0.06,
+            child: Expanded(
+              child: Text(
+                match.team1Name,
+                overflow: TextOverflow.clip,
+                style: GoogleFonts.poppins(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ),
+        Image.asset(
+          match.team1Logo,
+          height: w * 0.04,
+          width: w * 0.04,
+        ),
+        Center(
+          child: Text(
+            "Match ${match.matchNumber}\n ${match.matchTime}\n  IST",
+            style: GoogleFonts.poppins(
+              color: Colors.black,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        Image.asset(
+          match.team2Logo,
+          height: w * 0.04,
+          width: w * 0.04,
+        ),
+        Padding(
+          padding: EdgeInsets.only(left: w * 0.01),
+          child: SizedBox(
+            width: w * 0.06,
+            child: Expanded(
+              child: Text(
+                match.team2Name,
+                overflow: TextOverflow.clip,
+                style: GoogleFonts.poppins(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ),
+        isAdmin
+            ? Padding(
+                padding: EdgeInsets.only(right: w * 0.01),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        MatchesController().approveMatch(match.matchNumber);
+                      },
+                      child: Container(
+                        height: h * 0.04,
+                        width: w * 0.035,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFfc5607),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Approve",
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: w * 0.005,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      height: h * 0.04,
+                      width: w * 0.035,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFfc5607),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "Reject",
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: w * 0.005,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : Padding(
+                padding: EdgeInsets.only(right: w * 0.01),
+                child: Container(
+                  height: h * 0.04,
+                  width: w * 0.07,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFfc5607),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "Waiting For Approval",
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              )
+      ],
+    ),
+  );
 }
