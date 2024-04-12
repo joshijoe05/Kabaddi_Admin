@@ -29,7 +29,7 @@ class _UpcomingState extends State<Upcoming> {
   Widget build(BuildContext context) {
     var h = MediaQuery.of(context).size.height;
     var w = MediaQuery.of(context).size.width;
-    List<Match> matches = [
+    List<KabbadiMatch> matches = [
       // Match(
       //   team1Name: 'Danbang Delhi K.C',
       //   team1Logo: 'images/danbang.png',
@@ -39,7 +39,7 @@ class _UpcomingState extends State<Upcoming> {
       //   matchTime: '8:30',
       //   matchDate: 'Octomber 18 2024',
       // ),
-      Match(
+      KabbadiMatch(
         team1Name: 'Tamil Thalaivas',
         team1Logo: 'images/tamilThalaivas.png',
         team2Name: 'Gujarat Giants',
@@ -48,7 +48,7 @@ class _UpcomingState extends State<Upcoming> {
         matchTime: '9:00',
         matchDate: 'December 24 2024',
       ),
-      Match(
+      KabbadiMatch(
         team1Name: 'Bangaluru Bulls',
         team1Logo: 'images/bengaluru.png',
         team2Name: 'Bengal Warriors',
@@ -60,7 +60,7 @@ class _UpcomingState extends State<Upcoming> {
     ];
 
     // Group matches by date
-    Map<String, List<Match>> groupedMatches = {};
+    Map<String, List<KabbadiMatch>> groupedMatches = {};
     for (var match in matches) {
       if (groupedMatches.containsKey(match.matchDate)) {
         groupedMatches[match.matchDate]!.add(match);
@@ -391,7 +391,8 @@ class _UpcomingState extends State<Upcoming> {
     );
   }
 
-  Widget _approvedTournaments(BuildContext context, String index, Match match) {
+  Widget _approvedTournaments(
+      BuildContext context, String index, KabbadiMatch match) {
     double w = MediaQuery.of(context).size.width;
     double h = MediaQuery.of(context).size.height;
     return Container(
@@ -482,83 +483,85 @@ class _UpcomingState extends State<Upcoming> {
   }
 
   Widget _buildMatchGroup(
-      String matchDate, List<Match> matches, BuildContext context) {
+      String matchDate, List<KabbadiMatch> matches, BuildContext context) {
     double w = MediaQuery.of(context).size.width;
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => Matchpoints()));
-      },
-      child: Container(
-        color: const Color(0xFFfc5607),
-        margin: const EdgeInsets.all(12),
-        child: Padding(
-          padding: EdgeInsets.all(w * 0.01),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Column(
-                children: matches.map((match) {
-                  return _buildMatchContainer(match, context);
-                }).toList(),
-              ),
-            ],
-          ),
+    return Container(
+      color: const Color(0xFFfc5607),
+      margin: const EdgeInsets.all(12),
+      child: Padding(
+        padding: EdgeInsets.all(w * 0.01),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              children: matches.map((match) {
+                return _buildMatchContainer(match, context);
+              }).toList(),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildMatchContainer(Match match, BuildContext context) {
+  Widget _buildMatchContainer(KabbadiMatch match, BuildContext context) {
     double w = MediaQuery.of(context).size.width;
     return Padding(
       padding: EdgeInsets.all(w * 0.01),
-      child: Container(
-        color: Colors.white,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: w * 0.01),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Text(
-                  match.team1Name,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: w * 0.012),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => Matchpoints(match: match)));
+        },
+        child: Container(
+          color: Colors.white,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: w * 0.01),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Text(
+                    match.team1Name,
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: w * 0.012),
+                  ),
                 ),
-              ),
-              Image.asset(
-                match.team1Logo,
-                height: w * 0.04,
-                width: w * 0.04,
-              ),
-              Center(
-                child: Text(
-                  "Match ${match.matchNumber}\n ${match.matchTime}\n  IST",
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: w * 0.012),
+                Image.asset(
+                  match.team1Logo,
+                  height: w * 0.04,
+                  width: w * 0.04,
                 ),
-              ),
-              Image.asset(
-                match.team2Logo,
-                height: w * 0.04,
-                width: w * 0.04,
-              ),
-              Expanded(
-                child: Text(
-                  match.team2Name,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: w * 0.012),
+                Center(
+                  child: Text(
+                    "Match ${match.matchNumber}\n ${match.matchTime}\n  IST",
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: w * 0.012),
+                  ),
                 ),
-              ),
-            ],
+                Image.asset(
+                  match.team2Logo,
+                  height: w * 0.04,
+                  width: w * 0.04,
+                ),
+                Expanded(
+                  child: Text(
+                    match.team2Name,
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: w * 0.012),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -567,7 +570,7 @@ class _UpcomingState extends State<Upcoming> {
 }
 
 Widget waitingForApprovalRefreeWidget(
-    BuildContext context, Match match, bool isAdmin) {
+    BuildContext context, KabbadiMatch match, bool isAdmin) {
   double w = MediaQuery.of(context).size.width;
   double h = MediaQuery.of(context).size.height;
 

@@ -5,8 +5,8 @@ import 'package:kabadi_admin/database/common_services.dart';
 class MatchesController extends GetxController {
   bool isAdmin = CommonServices.userRole == "admin";
 
-  RxList<Match> allMatches = RxList<Match>([]);
-  late Rx<Match> realTimeMatchUpdates;
+  RxList<KabbadiMatch> allMatches = RxList<KabbadiMatch>([]);
+  late Rx<KabbadiMatch> realTimeMatchUpdates;
 
   Rx<bool> isLoading = false.obs;
 
@@ -22,8 +22,8 @@ class MatchesController extends GetxController {
             });
   }
 
-  RxList<Match> approvedMatches = RxList<Match>([]);
-  RxList<Match> watingForApprovalMatches = RxList<Match>([]);
+  RxList<KabbadiMatch> approvedMatches = RxList<KabbadiMatch>([]);
+  RxList<KabbadiMatch> watingForApprovalMatches = RxList<KabbadiMatch>([]);
 
   void filterApprovedMatches() {
     for (var match in allMatches) {
@@ -45,7 +45,7 @@ class MatchesController extends GetxController {
     }
   }
 
-  Future<void> addMatch(Match match) async {
+  Future<void> addMatch(KabbadiMatch match) async {
     try {
       isLoading.value = true;
       await MatchesServices().addMatch(match);
@@ -81,7 +81,7 @@ class MatchesController extends GetxController {
   }
 }
 
-class Match {
+class KabbadiMatch {
   String team1Name;
   String team1Logo;
   String team2Name;
@@ -93,7 +93,7 @@ class Match {
   int team1Score = 0;
   int team2Score = 0;
 
-  Match({
+  KabbadiMatch({
     required this.team1Name,
     required this.team1Logo,
     required this.team2Name,
@@ -104,7 +104,7 @@ class Match {
   });
 
   // From Firestore
-  Match.fromFirestore(Map<String, dynamic> data)
+  KabbadiMatch.fromFirestore(Map<String, dynamic> data)
       : team1Name = data['team1Name'],
         team1Logo = data['team1Logo'],
         team2Name = data['team2Name'],
@@ -121,14 +121,15 @@ class MatchesServices {
   final CollectionReference _matchesCollectionReference =
       FirebaseFirestore.instance.collection("Matches");
 
-  Stream<List<Match>> getMatches() {
+  Stream<List<KabbadiMatch>> getMatches() {
     return _matchesCollectionReference.snapshots().map((snapshot) => snapshot
         .docs
-        .map((doc) => Match.fromFirestore(doc.data() as Map<String, dynamic>))
+        .map((doc) =>
+            KabbadiMatch.fromFirestore(doc.data() as Map<String, dynamic>))
         .toList());
   }
 
-  Future<void> addMatch(Match match) async {
+  Future<void> addMatch(KabbadiMatch match) async {
     try {
       await _matchesCollectionReference.add({
         'team1Name': match.team1Name,
@@ -145,11 +146,9 @@ class MatchesServices {
     }
   }
 
-  Stream<Match> getMatchByIdInReatlTime(String id) {
-    return _matchesCollectionReference
-        .doc(id)
-        .snapshots()
-        .map((doc) => Match.fromFirestore(doc.data() as Map<String, dynamic>));
+  Stream<KabbadiMatch> getMatchByIdInReatlTime(String id) {
+    return _matchesCollectionReference.doc(id).snapshots().map((doc) =>
+        KabbadiMatch.fromFirestore(doc.data() as Map<String, dynamic>));
   }
 
   Future<void> approveMatch(String id) async {
@@ -160,5 +159,3 @@ class MatchesServices {
     }
   }
 }
-
-

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
-class Table_ extends StatelessWidget {
-  const Table_({super.key});
+class ReferenceTable extends StatelessWidget {
+  const ReferenceTable({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: Row(children: [
+    return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
       Table(
         defaultColumnWidth: FixedColumnWidth(130.0),
         border: TableBorder.all(
@@ -154,6 +153,6 @@ class Table_ extends StatelessWidget {
           ]),
         ],
       ),
-    ]));
+    ]);
   }
 }
